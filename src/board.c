@@ -47,7 +47,7 @@ void print_board(Board board, char end) {
     line(board.w+1)
 }
 
-// Computing functions
+// Compute board
 
 #define p 0.1
 #define MAX 1000000
@@ -55,16 +55,14 @@ int fill_board(Board board) {
     srand(69);
     int bomb_total = 0;
     for(int i = 0; i < board.h; i++)
-        for(int j = 0; j < board.w; j++) 
-            bomb_total += board._[i][j].has_bomb = ((float)(rand() % MAX) / MAX) < p;
-    return bomb_total;
-}
+        for(int j = 0; j < board.w; j++) {
+            if (((float)(rand() % MAX) / MAX) >= p) continue;
+            bomb_total += board._[i][j].has_bomb = 1;
 
-void count_board(Board board) {
-    for(int i = 0; i < board.h; i++)
-        for(int j = 0; j < board.w; j++) 
             for(int k = -1; k <= 1; k++)
                 for(int l = -1; l <= 1; l++)
                     if(i+k >= 0 && i+k < board.h && j+l >= 0 && j+l < board.w)
-                        board._[i][j].count += (board._[i+k][j+l].has_bomb ? 1 : 0);
+                        board._[i+k][j+l].count += 1;
+        }
+    return bomb_total;
 }

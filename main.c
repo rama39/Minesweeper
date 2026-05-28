@@ -23,11 +23,12 @@ int main(int argc, char **argv) {
     // Creates game board
     Board board = new_board(w, h);
     int bomb_total = fill_board(board), reveal_total = 0;
-    count_board(board);
 
     // Runs game until end condition
     // TODO: count game time
     // TODO: save files
+    // TODO: show bomb count
+    // TODO: add flags
     int x, y;
     while(1) {
         print_board(board, 0);

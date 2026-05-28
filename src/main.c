@@ -31,11 +31,13 @@ void print_board(int w, int h, Cell **board) {
     line(w+1)
 }
 
-void fill_board(int w, int h, Cell **board) {
+int fill_board(int w, int h, Cell **board) {
     srand(69);
+    int bomb_total = 0;
     for(int i = 0; i < h; i++)
         for(int j = 0; j < w; j++) 
-            board[i][j].has_bomb = ((float)(rand() % MAX) / MAX) < p;
+            bomb_total += board[i][j].has_bomb = ((float)(rand() % MAX) / MAX) < p;
+    return bomb_total;
 }
 
 void count_board(int w, int h, Cell **board) {
@@ -59,26 +61,30 @@ void print_count(int w, int h, Cell **board) {
     line(w+1)
 }
 
-void _aux_DFS(int w, int h, Cell **board, int x, int y, char ** visited) {
+int _aux_DFS(int w, int h, Cell **board, int x, int y, char ** visited) {
     //printf("%i %i\n", x, y);
-    if(!(y >= 0 && y < h && x >= 0 && x < w)) return;
-    if(visited[y][x]) return;
+    if(!(y >= 0 && y < h && x >= 0 && x < w)) return 0;
+    if(board[y][x].revealed) return 0;
     board[y][x].revealed = 1;
     visited[y][x] = 1;
-    if (board[y][x].count > 0) return;
+    if (board[y][x].count > 0) return 1;
 
+    int branch_total = 0;
     for(int k = -1; k <= 1; k++)
         for(int l = -1; l <= 1; l++) 
-            _aux_DFS(w, h, board, x+l, y+k, visited);
+            branch_total += _aux_DFS(w, h, board, x+l, y+k, visited);
+    return 1 + branch_total;
 }
-void DFS_reveal(int w, int h, Cell **board, int x, int y) {
+int DFS_reveal(int w, int h, Cell **board, int x, int y) {
     char **visited = malloc(sizeof(char*)*h);
     for (int i = 0; i < h; i++) visited[i] = calloc(w, sizeof(char));
     
-    _aux_DFS(w, h, board, x, y, visited);
+    int reveal_count = _aux_DFS(w, h, board, x, y, visited);
 
     for(int i = 0; i < h; i++) free(visited[i]);
     free(visited);
+
+    return reveal_count;
 }
 
 int main(int argc, char **argv) {
@@ -92,17 +98,19 @@ int main(int argc, char **argv) {
         printf("Height: "),
         scanf(" %i", &h);
     else
-        printf("Usage:\n  ./minesweeper\n    Width: [board width]\n    Height: [board height]\n  ./minesweeper [board width] [board height]\nObs: minimun size = 8\n");
-    if(w<8)w=8; if(h<8)h=8;
+        printf("Usage:\n  ./minesweeper\n    Width: [board width]\n    Height: [board height]\n  ./minesweeper [board width] [board height]\nObs: minimun size = 8\n"),
+        exit(0);
+    //if(w<8)w=8; if(h<8)h=8;
     printf("Width: %i\nHeight: %i\n", w, h);
 
     Cell **board = malloc(sizeof(Cell*)*h);
     for (int i = 0; i < h; i++) board[i] = calloc(w, sizeof(Cell));
     
-    fill_board(w, h, board);
+    int bomb_total = fill_board(w, h, board);
+    int reveal_total = 0;
     count_board(w, h, board);
 
-    print_count(w, h, board);
+    //print_count(w, h, board);
 
     int x, y;
     while(1) {
@@ -111,7 +119,17 @@ int main(int argc, char **argv) {
         printf("x y: "),
         scanf(" %i %i", &x, &y);
 
-        DFS_reveal(w, h, board, x, y);
+        reveal_total += DFS_reveal(w, h, board, x, y);
+
+        if(board[y][x].has_bomb) {
+            printf("X_X You lost...\n");
+            break;
+        }
+        if(w*h - reveal_total == bomb_total) {
+            printf("B) You won!\n");
+            break;
+        }
+        printf("reveal: %i\nbomb:%i\n", reveal_total, bomb_total);
     }
 
     print_count(w, h, board);

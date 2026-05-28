@@ -4,48 +4,59 @@
 #define p 0.1
 #define MAX 1000000
 
-void print_board(int w, int h, char **board) {
-    printf("+");
-    for(int i = 0; i < w; i++) printf("--+");
-    printf("\n");
-    for(int i = 0; i < h; i++) {
-        printf("|");
-        for(int j = 0; j < w; j++) printf("%c |", board[i][j] ? 'X':' ');
-        printf("\n");
-    }
-    printf("+");
-    for(int i = 0; i < w; i++) printf("--+");
-    printf("\n");
+#define line(l) printf("+"); for(int i = 0; i < (l); i++) printf("--+"); printf("\n");
+
+typedef struct cell {
+    short int count;
+    char has_bomb;
+    char revealed;
+} Cell;
+
+char print_cell(Cell cell, char reveal) {
+    if(!cell.revealed && !reveal)  return '#';
+    if(cell.has_bomb)   return 'X';
+    if(cell.count == 0) return ' ';
+    return '0' + cell.count;
 }
 
-void fill_board(int w, int h, char **board) {
+void print_board(int w, int h, Cell **board) {
+    printf("   "); line(w)
+    printf("   |"); for(int i = 0; i < w; i++) printf("%c |", 'A'+i); printf("\n");
+    line(w+1)
+    for(int i = 0; i < h; i++) {
+        printf("|%c |", 'A'+i);
+        for(int j = 0; j < w; j++) printf("%c |", print_cell(board[i][j], 0));
+        printf("\n");
+    }
+    line(w+1)
+}
+
+void fill_board(int w, int h, Cell **board) {
     srand(69);
     for(int i = 0; i < h; i++)
         for(int j = 0; j < w; j++) 
-            board[i][j] = ((float)(rand() % MAX) / MAX) < p;
+            board[i][j].has_bomb = ((float)(rand() % MAX) / MAX) < p;
 }
 
-void count_board(int w, int h, char **board, int **cboard) {
+void count_board(int w, int h, Cell **board) {
     for(int i = 0; i < h; i++)
         for(int j = 0; j < w; j++) 
             for(int k = -1; k <= 1; k++)
                 for(int l = -1; l <= 1; l++)
                     if(i+k >= 0 && i+k < h && j+l >= 0 && j+l < w)
-                        cboard[i][j] += (board[i+k][j+l] ? 1 : 0);
+                        board[i][j].count += (board[i+k][j+l].has_bomb ? 1 : 0);
 }
 
-void print_count(int w, int h, char **board, int **cboard) {
-    printf("+");
-    for(int i = 0; i < w; i++) printf("--+");
-    printf("\n");
+void print_count(int w, int h, Cell **board) {
+    printf("   "); line(w)
+    printf("   |"); for(int i = 0; i < w; i++) printf("%c |", 'A'+i); printf("\n");
+    line(w+1)
     for(int i = 0; i < h; i++) {
-        printf("|");
-        for(int j = 0; j < w; j++) printf("%c |", board[i][j] ? 'X': cboard[i][j] ? '0'+cboard[i][j] : ' ');
+        printf("|%c |", 'A'+i);
+        for(int j = 0; j < w; j++) printf("%c |", print_cell(board[i][j], 1));
         printf("\n");
     }
-    printf("+");
-    for(int i = 0; i < w; i++) printf("--+");
-    printf("\n");
+    line(w+1)
 }
 
 int main(int argc, char **argv) {
@@ -63,20 +74,16 @@ int main(int argc, char **argv) {
     if(w<8)w=8; if(h<8)h=8;
     printf("Width: %i\nHeight: %i\n", w, h);
 
-    char **board = malloc(sizeof(char*)*h);
-    for (int i = 0; i < h; i++) board[i] = malloc(sizeof(char)*w);
-    int **cboard = malloc(sizeof(int*)*h);
-    for (int i = 0; i < h; i++) cboard[i] = calloc(w, sizeof(int));
+    Cell **board = malloc(sizeof(Cell*)*h);
+    for (int i = 0; i < h; i++) board[i] = calloc(w, sizeof(Cell));
     
     fill_board(w, h, board);
-    count_board(w, h, board, cboard);
+    count_board(w, h, board);
 
     print_board(w, h, board);
-    print_count(w, h, board, cboard);
+    //print_count(w, h, board);
 
     for(int i = 0; i < h; i++) free(board[i]);
     free(board);
-    for(int i = 0; i < h; i++) free(cboard[i]);
-    free(cboard);
     return 0;
 }

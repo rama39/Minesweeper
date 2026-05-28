@@ -21,10 +21,10 @@ char print_cell(Cell cell, char reveal) {
 
 void print_board(int w, int h, Cell **board) {
     printf("   "); line(w)
-    printf("   |"); for(int i = 0; i < w; i++) printf("%c |", 'A'+i); printf("\n");
+    printf("   |"); for(int i = 0; i < w; i++) printf("% 2i|", i); printf("\n");
     line(w+1)
     for(int i = 0; i < h; i++) {
-        printf("|%c |", 'A'+i);
+        printf("|% 2i|", i);
         for(int j = 0; j < w; j++) printf("%c |", print_cell(board[i][j], 0));
         printf("\n");
     }
@@ -49,14 +49,36 @@ void count_board(int w, int h, Cell **board) {
 
 void print_count(int w, int h, Cell **board) {
     printf("   "); line(w)
-    printf("   |"); for(int i = 0; i < w; i++) printf("%c |", 'A'+i); printf("\n");
+    printf("   |"); for(int i = 0; i < w; i++) printf("% 2i|", i); printf("\n");
     line(w+1)
     for(int i = 0; i < h; i++) {
-        printf("|%c |", 'A'+i);
+        printf("|% 2i|", i);
         for(int j = 0; j < w; j++) printf("%c |", print_cell(board[i][j], 1));
         printf("\n");
     }
     line(w+1)
+}
+
+void _aux_DFS(int w, int h, Cell **board, int x, int y, char ** visited) {
+    //printf("%i %i\n", x, y);
+    if(!(y >= 0 && y < h && x >= 0 && x < w)) return;
+    if(visited[y][x]) return;
+    board[y][x].revealed = 1;
+    visited[y][x] = 1;
+    if (board[y][x].count > 0) return;
+
+    for(int k = -1; k <= 1; k++)
+        for(int l = -1; l <= 1; l++) 
+            _aux_DFS(w, h, board, x+l, y+k, visited);
+}
+void DFS_reveal(int w, int h, Cell **board, int x, int y) {
+    char **visited = malloc(sizeof(char*)*h);
+    for (int i = 0; i < h; i++) visited[i] = calloc(w, sizeof(char));
+    
+    _aux_DFS(w, h, board, x, y, visited);
+
+    for(int i = 0; i < h; i++) free(visited[i]);
+    free(visited);
 }
 
 int main(int argc, char **argv) {
@@ -80,8 +102,19 @@ int main(int argc, char **argv) {
     fill_board(w, h, board);
     count_board(w, h, board);
 
-    print_board(w, h, board);
-    //print_count(w, h, board);
+    print_count(w, h, board);
+
+    int x, y;
+    while(1) {
+        print_board(w, h, board);
+        
+        printf("x y: "),
+        scanf(" %i %i", &x, &y);
+
+        DFS_reveal(w, h, board, x, y);
+    }
+
+    print_count(w, h, board);
 
     for(int i = 0; i < h; i++) free(board[i]);
     free(board);

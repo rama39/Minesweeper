@@ -37,10 +37,10 @@ char print_cell(Cell cell, char reveal) {
 
 void print_board(Board board, char end) {
     printf("   "); line(board.w)
-    printf("   |"); for(int i = 0; i < board.w; i++) printf("% 2i|", i); printf("\n");
+    printf("   |"); for(int i = 0; i < board.w; i++) printf("%2i|", i); printf("\n");
     line(board.w+1)
     for(int i = 0; i < board.h; i++) {
-        printf("|% 2i|", i);
+        printf("|%2i|", i);
         for(int j = 0; j < board.w; j++) printf("%c |", print_cell(board._[i][j], end));
         printf("\n");
     }

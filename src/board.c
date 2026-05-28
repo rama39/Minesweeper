@@ -12,6 +12,19 @@ typedef struct Board {
     int w, h;
 } Board;
 
+Board new_board(int w, int h) {
+    Board temp = {
+        ._ = malloc(sizeof(Cell*)*h),
+        .w = w, .h = h
+    };
+    for (int i = 0; i < h; i++) temp._[i] = calloc(w, sizeof(Cell));
+    return temp;
+}
+void delete_board(Board board) {
+    for(int i = 0; i < board.h; i++) free(board._[i]);
+    free(board._);
+}
+
 // Printing functions
 
 #define line(l) printf("+"); for(int i = 0; i < (l); i++) printf("--+"); printf("\n");

@@ -6,11 +6,16 @@
 
 #define line(l) printf("+"); for(int i = 0; i < (l); i++) printf("--+"); printf("\n");
 
-typedef struct cell {
+typedef struct Cell {
     short int count;
     char has_bomb;
     char revealed;
 } Cell;
+
+typedef struct Board {
+    Cell **_;
+    int w, h;
+} Board;
 
 char print_cell(Cell cell, char reveal) {
     if(!cell.revealed && !reveal)  return '#';
@@ -19,69 +24,57 @@ char print_cell(Cell cell, char reveal) {
     return '0' + cell.count;
 }
 
-void print_board(int w, int h, Cell **board) {
-    printf("   "); line(w)
-    printf("   |"); for(int i = 0; i < w; i++) printf("% 2i|", i); printf("\n");
-    line(w+1)
-    for(int i = 0; i < h; i++) {
+void print_board(Board board, char end) {
+    printf("   "); line(board.w)
+    printf("   |"); for(int i = 0; i < board.w; i++) printf("% 2i|", i); printf("\n");
+    line(board.w+1)
+    for(int i = 0; i < board.h; i++) {
         printf("|% 2i|", i);
-        for(int j = 0; j < w; j++) printf("%c |", print_cell(board[i][j], 0));
+        for(int j = 0; j < board.w; j++) printf("%c |", print_cell(board._[i][j], end));
         printf("\n");
     }
-    line(w+1)
+    line(board.w+1)
 }
 
-int fill_board(int w, int h, Cell **board) {
+int fill_board(Board board) {
     srand(69);
     int bomb_total = 0;
-    for(int i = 0; i < h; i++)
-        for(int j = 0; j < w; j++) 
-            bomb_total += board[i][j].has_bomb = ((float)(rand() % MAX) / MAX) < p;
+    for(int i = 0; i < board.h; i++)
+        for(int j = 0; j < board.w; j++) 
+            bomb_total += board._[i][j].has_bomb = ((float)(rand() % MAX) / MAX) < p;
     return bomb_total;
 }
 
-void count_board(int w, int h, Cell **board) {
-    for(int i = 0; i < h; i++)
-        for(int j = 0; j < w; j++) 
+void count_board(Board board) {
+    for(int i = 0; i < board.h; i++)
+        for(int j = 0; j < board.w; j++) 
             for(int k = -1; k <= 1; k++)
                 for(int l = -1; l <= 1; l++)
-                    if(i+k >= 0 && i+k < h && j+l >= 0 && j+l < w)
-                        board[i][j].count += (board[i+k][j+l].has_bomb ? 1 : 0);
+                    if(i+k >= 0 && i+k < board.h && j+l >= 0 && j+l < board.w)
+                        board._[i][j].count += (board._[i+k][j+l].has_bomb ? 1 : 0);
 }
 
-void print_count(int w, int h, Cell **board) {
-    printf("   "); line(w)
-    printf("   |"); for(int i = 0; i < w; i++) printf("% 2i|", i); printf("\n");
-    line(w+1)
-    for(int i = 0; i < h; i++) {
-        printf("|% 2i|", i);
-        for(int j = 0; j < w; j++) printf("%c |", print_cell(board[i][j], 1));
-        printf("\n");
-    }
-    line(w+1)
-}
-
-int _aux_DFS(int w, int h, Cell **board, int x, int y, char ** visited) {
+int _aux_DFS(Board board, int x, int y, char ** visited) {
     //printf("%i %i\n", x, y);
-    if(!(y >= 0 && y < h && x >= 0 && x < w)) return 0;
-    if(board[y][x].revealed) return 0;
-    board[y][x].revealed = 1;
+    if(!(y >= 0 && y < board.h && x >= 0 && x < board.w)) return 0;
+    if(board._[y][x].revealed) return 0;
+    board._[y][x].revealed = 1;
     visited[y][x] = 1;
-    if (board[y][x].count > 0) return 1;
+    if (board._[y][x].count > 0) return 1;
 
     int branch_total = 0;
     for(int k = -1; k <= 1; k++)
         for(int l = -1; l <= 1; l++) 
-            branch_total += _aux_DFS(w, h, board, x+l, y+k, visited);
+            branch_total += _aux_DFS(board, x+l, y+k, visited);
     return 1 + branch_total;
 }
-int DFS_reveal(int w, int h, Cell **board, int x, int y) {
-    char **visited = malloc(sizeof(char*)*h);
-    for (int i = 0; i < h; i++) visited[i] = calloc(w, sizeof(char));
+int DFS_reveal(Board board, int x, int y) {
+    char **visited = malloc(sizeof(char*)*board.h);
+    for (int i = 0; i < board.h; i++) visited[i] = calloc(board.w, sizeof(char));
     
-    int reveal_count = _aux_DFS(w, h, board, x, y, visited);
+    int reveal_count = _aux_DFS(board, x, y, visited);
 
-    for(int i = 0; i < h; i++) free(visited[i]);
+    for(int i = 0; i < board.h; i++) free(visited[i]);
     free(visited);
 
     return reveal_count;
@@ -100,28 +93,28 @@ int main(int argc, char **argv) {
     else
         printf("Usage:\n  ./minesweeper\n    Width: [board width]\n    Height: [board height]\n  ./minesweeper [board width] [board height]\nObs: minimun size = 8\n"),
         exit(0);
-    //if(w<8)w=8; if(h<8)h=8;
+    if(w<8)w=8; if(h<8)h=8;
     printf("Width: %i\nHeight: %i\n", w, h);
 
-    Cell **board = malloc(sizeof(Cell*)*h);
-    for (int i = 0; i < h; i++) board[i] = calloc(w, sizeof(Cell));
+    Board board = {
+        ._ = malloc(sizeof(Cell*)*h),
+        .w = w, .h = h
+    };
+    for (int i = 0; i < h; i++) board._[i] = calloc(w, sizeof(Cell));
     
-    int bomb_total = fill_board(w, h, board);
-    int reveal_total = 0;
-    count_board(w, h, board);
-
-    //print_count(w, h, board);
+    int bomb_total = fill_board(board), reveal_total = 0;
+    count_board(board);
 
     int x, y;
     while(1) {
-        print_board(w, h, board);
+        print_board(board, 0);
         
         printf("x y: "),
         scanf(" %i %i", &x, &y);
 
-        reveal_total += DFS_reveal(w, h, board, x, y);
+        reveal_total += DFS_reveal(board, x, y);
 
-        if(board[y][x].has_bomb) {
+        if(board._[y][x].has_bomb) {
             printf("X_X You lost...\n");
             break;
         }
@@ -132,9 +125,9 @@ int main(int argc, char **argv) {
         printf("reveal: %i\nbomb:%i\n", reveal_total, bomb_total);
     }
 
-    print_count(w, h, board);
+    print_board(board, 1);
 
-    for(int i = 0; i < h; i++) free(board[i]);
-    free(board);
+    for(int i = 0; i < h; i++) free(board._[i]);
+    free(board._);
     return 0;
 }

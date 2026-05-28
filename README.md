@@ -19,10 +19,14 @@ Command line minesweeper in C
 
 # Usage
 
-./minesweeper
-    Width: [board width]
-    Height: [board height]
+Without arguments, width and height of board will be requested:
 
-./minesweeper [board width] [board height]
+    ./minesweeper
+        Width: [board width]
+        Height: [board height]
+
+With width and height of board as arguments:
+
+    ./minesweeper [board width] [board height]
 
 Obs: minimun board size = 8

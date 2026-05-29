@@ -12,6 +12,8 @@ typedef struct Cell {
 typedef struct Board {
     Cell **_;
     int w, h;
+    int bomb_total, reveal_total;
+    int flag_count;
 } Board;
 
 Board new_board(int w, int h) {

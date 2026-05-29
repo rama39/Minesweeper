@@ -24,3 +24,28 @@ int DFS_reveal(Board board, int x, int y) {
 
     return reveal_count;
 }
+
+int reveal(Board board, int x, int y) {
+    if(!(y >= 0 && y < board.h && x >= 0 && x < board.w)) return 0;
+    if(board._[y][x].revealed) {
+        if(board._[y][x].count > 0) {
+            int neighbour_flags = 0;
+            for(int k = -1; k <= 1; k++)
+            for(int l = -1; l <= 1; l++) 
+            if(y+k >= 0 && y+k < board.h && x+l >= 0 && x+l < board.w)
+                if(board._[y+k][x+l].flagged) 
+                    neighbour_flags++;
+
+            if(neighbour_flags == board._[y][x].count) {
+                int neighbour_reveal = 0;
+                for(int k = -1; k <= 1; k++)
+                for(int l = -1; l <= 1; l++) 
+                if(y+k >= 0 && y+k < board.h && x+l >= 0 && x+l < board.w)
+                    if(!board._[y+k][x+l].flagged && !board._[y+k][x+l].revealed)
+                        neighbour_reveal += DFS_reveal(board, x+l, y+k);
+                return neighbour_reveal;
+            }
+        }
+        return 0;
+    } else return DFS_reveal(board, x, y);
+}

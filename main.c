@@ -27,7 +27,6 @@ int main(int argc, char **argv) {
 
     // Runs game until end condition
     // TODO: save files
-    // TODO: clear around counted and flagged
     int x, y;
     char buffer[128];
     time_t start = time(NULL);
@@ -49,7 +48,7 @@ int main(int argc, char **argv) {
             if(sscanf(buffer, " %i %i", &x, &y) != 2) continue;
             if(!(y >= 0 && y < board.h && x >= 0 && x < board.w)) continue;
             if(board._[y][x].flagged) continue;
-            reveal_total += DFS_reveal(board, x, y);
+            reveal_total += reveal(board, x, y);
         }
 
         if(board._[y][x].has_bomb) {

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "src/minesweeper.h"
+#include "lib/minesweeper.h"
 
 int main(int argc, char **argv) {
 

@@ -1,4 +1,5 @@
 
+// =========================================================================
 // Defining types
 
 typedef struct Cell {
@@ -25,7 +26,33 @@ void delete_board(Board board) {
     for(int i = 0; i < board.h; i++) free(board._[i]);
     free(board._);
 }
+Cell get(Board board, int x, int y) {
+    if(y >= 0 && y < board.h && x >= 0 && x < board.w)
+        return board._[y][x];
+    return (Cell){};
+}
 
+// =========================================================================
+// Compute board
+#define p 0.1
+#define MAX 1000000
+int fill_board(Board board) {
+    srand(69);
+    int bomb_total = 0;
+    for(int i = 0; i < board.h; i++)
+        for(int j = 0; j < board.w; j++) {
+            if (((float)(rand() % MAX) / MAX) >= p) continue;
+            bomb_total += board._[i][j].has_bomb = 1;
+
+            for(int k = -1; k <= 1; k++)
+                for(int l = -1; l <= 1; l++)
+                    if(i+k >= 0 && i+k < board.h && j+l >= 0 && j+l < board.w)
+                        board._[i+k][j+l].count += 1;
+        }
+    return bomb_total;
+}
+
+// =========================================================================
 // Printing functions
 
 #define line(l) printf("+"); for(int i = 0; i < (l); i++) printf("--+"); printf("\n");
@@ -47,24 +74,4 @@ void print_board(Board board, char end) {
         printf("\n");
     }
     line(board.w+1)
-}
-
-// Compute board
-
-#define p 0.1
-#define MAX 1000000
-int fill_board(Board board) {
-    srand(69);
-    int bomb_total = 0;
-    for(int i = 0; i < board.h; i++)
-        for(int j = 0; j < board.w; j++) {
-            if (((float)(rand() % MAX) / MAX) >= p) continue;
-            bomb_total += board._[i][j].has_bomb = 1;
-
-            for(int k = -1; k <= 1; k++)
-                for(int l = -1; l <= 1; l++)
-                    if(i+k >= 0 && i+k < board.h && j+l >= 0 && j+l < board.w)
-                        board._[i+k][j+l].count += 1;
-        }
-    return bomb_total;
 }

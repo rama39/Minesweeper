@@ -32,16 +32,14 @@ int reveal(Board board, int x, int y) {
             int neighbour_flags = 0;
             for(int k = -1; k <= 1; k++)
             for(int l = -1; l <= 1; l++) 
-            if(y+k >= 0 && y+k < board.h && x+l >= 0 && x+l < board.w)
-                if(board._[y+k][x+l].flagged) 
+                if(get(board, x+l, y+k).flagged) 
                     neighbour_flags++;
 
             if(neighbour_flags == board._[y][x].count) {
                 int neighbour_reveal = 0;
                 for(int k = -1; k <= 1; k++)
                 for(int l = -1; l <= 1; l++) 
-                if(y+k >= 0 && y+k < board.h && x+l >= 0 && x+l < board.w)
-                    if(!board._[y+k][x+l].flagged && !board._[y+k][x+l].revealed)
+                    if(!get(board, x+l, y+k).flagged && !get(board, x+l, y+k).revealed)
                         neighbour_reveal += DFS_reveal(board, x+l, y+k);
                 return neighbour_reveal;
             }

@@ -30,3 +30,9 @@ With width and height of board as arguments:
     ./minesweeper [board width] [board height]
 
 Obs: minimun board size = 8
+
+# Playing
+
+Board will be printed with labeled columns and rows. Terminal will prompt as "x y: ", type in values for x and y to reveal, or 'X' followed by values for x and y to flag a position. Flagged cells will be marked with a 'Q'
+
+Press enter to confirm and game will continue until you reveal a bomb (lose) or reveal all cells that are not bombs (win). If you win, victories will be recorded in wins.txt as ([w], [h]): [time]s

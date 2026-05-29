@@ -2,9 +2,10 @@
 // Defining types
 
 typedef struct Cell {
-    short int count;
+    char count;
     char has_bomb;
     char revealed;
+    char flagged;
 } Cell;
 
 typedef struct Board {
@@ -29,9 +30,10 @@ void delete_board(Board board) {
 
 #define line(l) printf("+"); for(int i = 0; i < (l); i++) printf("--+"); printf("\n");
 char print_cell(Cell cell, char reveal) {
+    if(cell.flagged)               return 'Q';
     if(!cell.revealed && !reveal)  return '#';
-    if(cell.has_bomb)   return 'X';
-    if(cell.count == 0) return ' ';
+    if(cell.has_bomb)              return 'X';
+    if(cell.count == 0)            return ' ';
     return '0' + cell.count;
 }
 

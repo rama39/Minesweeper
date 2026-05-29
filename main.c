@@ -22,21 +22,32 @@ int main(int argc, char **argv) {
 
     // Creates game board
     Board board = new_board(w, h);
-    int bomb_total = fill_board(board), reveal_total = 0;
+    int bomb_total = fill_board(board), reveal_total = 0, flag_total = 0;
 
     // Runs game until end condition
     // TODO: count game time
     // TODO: save files
-    // TODO: show bomb count
-    // TODO: add flags
     int x, y;
+    char buffer[128];
     while(1) {
+        printf("BOMBS: | %i / %i |\n", bomb_total - flag_total, bomb_total);
         print_board(board, 0);
         
-        printf("x y: "),
-        scanf(" %i %i", &x, &y);
+        printf("x y: ");
+        fgets(buffer, 128, stdin);
+        if(!(y >= 0 && y < board.h && x >= 0 && x < board.w)) continue;
 
-        reveal_total += DFS_reveal(board, x, y);
+        if(buffer[0] == 'X') {
+            if(sscanf(buffer+1, " %i %i", &x, &y) != 2) continue;
+            if(board._[y][x].revealed) continue;
+            if(board._[y][x].flagged) board._[y][x].flagged = 0, flag_total--;
+            else board._[y][x].flagged = 1, flag_total++;
+            continue;
+        } else {
+            if(sscanf(buffer, " %i %i", &x, &y) != 2) continue;
+            if(board._[y][x].flagged) continue;
+            reveal_total += DFS_reveal(board, x, y);
+        }
 
         if(board._[y][x].has_bomb) {
             printf("X_X You lost...\n");
@@ -46,7 +57,7 @@ int main(int argc, char **argv) {
             printf("B) You won!\n");
             break;
         }
-        printf("reveal: %i\nbomb:%i\n", reveal_total, bomb_total);
+        //printf("reveal: %i\nbomb:%i\n", reveal_total, bomb_total);
     }
 
     // Shows final board

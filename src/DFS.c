@@ -1,7 +1,7 @@
 int _aux_DFS(Board board, int x, int y, char ** visited) {
     //printf("%i %i\n", x, y);
     if(!(y >= 0 && y < board.h && x >= 0 && x < board.w)) return 0;
-    if(board._[y][x].revealed) return 0;
+    if(board._[y][x].revealed || board._[y][x].flagged) return 0;
     board._[y][x].revealed = 1;
     visited[y][x] = 1;
     if (board._[y][x].count > 0) return 1;

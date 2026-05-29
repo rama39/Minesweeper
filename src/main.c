@@ -10,7 +10,6 @@ int main(int argc, char **argv) {
     Board board = receive_board(argc, argv);
 
     // Runs game until end condition
-    // TODO: save files
     time_t start = time(NULL);
     int state = PLAY;
     do {

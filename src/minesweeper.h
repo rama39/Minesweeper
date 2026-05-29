@@ -1,6 +1,6 @@
 
 #include "board.c"
 
-#include "DFS.c"
+#include "reveal.c"
 
 #include "input.c"
